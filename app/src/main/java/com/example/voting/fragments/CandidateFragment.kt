@@ -9,46 +9,48 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.voting.R
-import com.example.voting.VotersFragment
 import com.example.voting.data.UserViewModel
 import com.example.voting.data.entities.Voters
 import com.example.voting.databinding.FragmentCandidateBinding
-import com.example.voting.databinding.FragmentLoginBinding
-import kotlinx.android.synthetic.main.fragment_candidate.*
-import kotlinx.android.synthetic.main.fragment_candidate.view.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.jar.Manifest
 
+/**
+ * https://developer.android.com/topic/libraries/view-binding
+ * https://developer.android.com/guide/fragments
+ */
 class CandidateFragment : Fragment() {
 
-    private lateinit var binding: FragmentCandidateBinding
+    private var _binding: FragmentCandidateBinding? = null
+    private val binding get() = _binding!!
 
     private val mUserViewModel by viewModels<UserViewModel>()
+    private var stringPath: String = ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_candidate, container, false)
+    ): View {
+        _binding = FragmentCandidateBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        view.btAddCandidate.setOnClickListener {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.btAddCandidate.setOnClickListener {
             insertDataToDatabase()
         }
 
-        binding = FragmentCandidateBinding.bind(view)
         binding.imageViewSelect.setOnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 if (ContextCompat.checkSelfPermission(
@@ -67,8 +69,6 @@ class CandidateFragment : Fragment() {
                 openGallery()
             }
         }
-
-        return view
     }
 
     //Select photo from gallery
@@ -101,7 +101,6 @@ class CandidateFragment : Fragment() {
         }
     }
 
-    private lateinit var stringPath: String
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == REQUEST_IMAGE_GALLERY) {
             if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE_GALLERY) {
@@ -154,7 +153,6 @@ class CandidateFragment : Fragment() {
 
 
     private fun insertDataToDatabase() {
-        binding = view?.let { FragmentCandidateBinding.bind(it) }!!
         with(binding) {
             val firstName = etAddFirstName.editText?.text.toString()
             val lastName = etAddLastName.editText?.text.toString()
@@ -168,7 +166,7 @@ class CandidateFragment : Fragment() {
                     0,
                     firstName,
                     lastName,
-                    votingCard,myFile
+                    votingCard, myFile
                 )
                 // Add Data to Database
                 mUserViewModel.addVoters(voters)
@@ -187,6 +185,11 @@ class CandidateFragment : Fragment() {
         return !(TextUtils.isEmpty(firstName) || TextUtils.isEmpty(lastName) || TextUtils.isEmpty(
             votingCrad
         ))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
     companion object {

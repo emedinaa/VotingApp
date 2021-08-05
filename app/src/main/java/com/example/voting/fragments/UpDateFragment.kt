@@ -1,32 +1,30 @@
 package com.example.voting.fragments
 
-import android.app.Activity
-import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.example.voting.R
 import com.example.voting.data.UserViewModel
 import com.example.voting.data.entities.Voters
-import kotlinx.android.synthetic.main.fragment_up_date.*
-import kotlinx.android.synthetic.main.fragment_up_date.view.*
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import com.example.voting.databinding.FragmentUpDateBinding
 
+/**
+ * https://developer.android.com/topic/libraries/view-binding
+ * https://developer.android.com/guide/fragments
+ */
 
 class UpDateFragment : Fragment() {
 
+    private var _binding: FragmentUpDateBinding? = null
+    private val binding get() = _binding!!
 
     private val arg by navArgs<UpDateFragmentArgs>()
     private val mUserViewModel by viewModels<UserViewModel>()
@@ -34,30 +32,30 @@ class UpDateFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_up_date, container, false)
+    ): View {
+        _binding = FragmentUpDateBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        view.etUpDateFirstName.editText?.setText(arg.currentUser.firstName)
-        view.etUpDateLastName.editText?.setText(arg.currentUser.lastName)
-        view.etUpdateNumerCard.editText?.setText(arg.currentUser.votingCard)
-        view.imageViewUpDate.setImageURI(Uri.parse(arg.currentUser.img))
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.etUpDateFirstName.editText?.setText(arg.currentUser.firstName)
+        binding.etUpDateLastName.editText?.setText(arg.currentUser.lastName)
+        binding.etUpdateNumerCard.editText?.setText(arg.currentUser.votingCard)
+        binding.imageViewUpDate.setImageURI(Uri.parse(arg.currentUser.img))
 
-        view.buttonUpDate.setOnClickListener {
+        binding.buttonUpDate.setOnClickListener {
             updateItem()
         }
-
-        return view
-
     }
 
     private fun updateItem() {
-        val firstName = etUpDateFirstName.editText?.text.toString()
-        val lastName = etUpDateLastName.editText?.text.toString()
-        val votingCard = etUpdateNumerCard.editText?.text.toString()
+        val firstName = binding.etUpDateFirstName.editText?.text.toString()
+        val lastName = binding.etUpDateLastName.editText?.text.toString()
+        val votingCard = binding.etUpdateNumerCard.editText?.text.toString()
         //val myFile = File(stringPath).toString()
 
-        if (inputCheck(firstName,lastName,votingCard)){
+        if (inputCheck(firstName, lastName, votingCard)) {
 
             //Create User Object
             val updateUser = Voters(arg.currentUser.votersId, firstName, lastName, votingCard, "")
@@ -66,7 +64,7 @@ class UpDateFragment : Fragment() {
             Toast.makeText(context, "Updated Successfully!", Toast.LENGTH_SHORT).show()
             // Navigate Back
             findNavController().navigate(R.id.action_upDateFragment_to_listFragment)
-        }else {
+        } else {
             Toast.makeText(context, "Please fill out all fields.", Toast.LENGTH_SHORT).show()
         }
     }
@@ -77,5 +75,9 @@ class UpDateFragment : Fragment() {
         ))
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 
 }

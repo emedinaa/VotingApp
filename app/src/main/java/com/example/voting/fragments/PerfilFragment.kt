@@ -2,38 +2,41 @@ package com.example.voting.fragments
 
 import android.os.Bundle
 import android.text.TextUtils
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.voting.R
-import com.example.voting.data.entities.User
 import com.example.voting.data.UserViewModel
+import com.example.voting.data.entities.User
 import com.example.voting.databinding.FragmentPerfilBinding
-import kotlinx.android.synthetic.main.fragment_perfil.*
 
+/**
+ * https://developer.android.com/topic/libraries/view-binding
+ * https://developer.android.com/guide/fragments
+ */
 
 class PerfilFragment : Fragment() {
 
-    private lateinit var binding: FragmentPerfilBinding
-    private val mUserViewmodel by viewModels<UserViewModel>()
+    private var _binding: FragmentPerfilBinding? = null
+    private val binding get() = _binding!!
+
+    private val mUserViewModel by viewModels<UserViewModel>()
 
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_perfil, container, false)
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentPerfilBinding.inflate(inflater, container, false)
+        return binding.root
     }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding = FragmentPerfilBinding.bind(view)
         binding.addUserBtn.setOnClickListener {
             insertDataToDatabase()
         }
@@ -41,9 +44,7 @@ class PerfilFragment : Fragment() {
 
     private fun insertDataToDatabase() {
 
-        binding = view?.let { FragmentPerfilBinding.bind(it) }!!
-
-        with(binding){
+        with(binding) {
 
             val userName = etAddFirstName.editText?.text.toString()
             val password = etAddPassword.editText?.text.toString()
@@ -56,7 +57,7 @@ class PerfilFragment : Fragment() {
                 )
 
                 // Add Data to Database
-                mUserViewmodel.addUser(user)
+                mUserViewModel.addUser(user)
                 Toast.makeText(context, "Successfully added!", Toast.LENGTH_SHORT).show()
                 // Navigate Back
                 findNavController().navigate(R.id.action_perfilFragment_to_mainFragment)
@@ -67,15 +68,15 @@ class PerfilFragment : Fragment() {
 
             }
         }
-
-
     }
 
-    private fun inputCheck(userName: String,password: String): Boolean {
+    private fun inputCheck(userName: String, password: String): Boolean {
 
         return !(TextUtils.isEmpty(userName) || TextUtils.isEmpty(password))
     }
 
-
-
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 }

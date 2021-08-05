@@ -15,7 +15,7 @@ class UserRepository(private val userDao: UserDao) {
         userDao.addUser(user)
     }
 
-    suspend fun addVoter(voters: Voters){
+    suspend fun addVoter(voters: Voters) {
         userDao.addVoter(voters)
     }
 
@@ -23,7 +23,7 @@ class UserRepository(private val userDao: UserDao) {
         return UserDatabase.getDatabase(context)
     }
 
-    suspend fun updateVoter(voters: Voters){
+    suspend fun updateVoter(voters: Voters) {
         userDao.updateVoter(voters)
     }
 
@@ -31,7 +31,7 @@ class UserRepository(private val userDao: UserDao) {
     fun getLoginDetails(context: Context, username: String, password: String): LiveData<User>? {
 
         loginDatabase = initializeDB(context)
-        loginTableModel = loginDatabase!!.userDao().getLoginDetails(username,password)
+        loginTableModel = loginDatabase!!.userDao().getLoginDetails(username, password)
 
         return loginTableModel
     }

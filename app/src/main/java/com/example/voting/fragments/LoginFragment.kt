@@ -1,25 +1,27 @@
 package com.example.voting.fragments
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.doOnTextChanged
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.voting.R
 import com.example.voting.data.UserViewModel
-import com.example.voting.data.entities.User
 import com.example.voting.databinding.FragmentLoginBinding
+
+/**
+ * https://developer.android.com/topic/libraries/view-binding
+ * https://developer.android.com/guide/fragments
+ */
 
 class LoginFragment : Fragment() {
 
-    //Data binding fragment
-    private lateinit var binding: FragmentLoginBinding
+    private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding!!
 
     private val mUserViewModel by viewModels<UserViewModel>()
 
@@ -27,11 +29,14 @@ class LoginFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_login, container, false)
+    ): View {
+        _binding = FragmentLoginBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        binding = FragmentLoginBinding.bind(view)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         with(binding) {
 
             tvSignUp.setOnClickListener {
@@ -45,10 +50,14 @@ class LoginFragment : Fragment() {
 
                 context?.let { it1 ->
                     mUserViewModel.getLoginDetails(it1, name, passWord)
-                        ?.observe(viewLifecycleOwner, Observer {
+                        ?.observe(viewLifecycleOwner, {
 
-                            if ( it == null) {
-                                Toast.makeText(context, "User or PassWord no found ", Toast.LENGTH_SHORT).show()
+                            if (it == null) {
+                                Toast.makeText(
+                                    context,
+                                    "User or PassWord no found ",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             } else {
                                 //  Toast.makeText(context, "Found", Toast.LENGTH_SHORT).show()
                                 findNavController().navigate(R.id.action_logInFragment_to_listFragment)
@@ -68,19 +77,18 @@ class LoginFragment : Fragment() {
             etUser.editText?.setText(mUserViewModel.username_.value)
             etPassword.editText?.setText(mUserViewModel.passWord_.value)
 
-            etUser.editText?.doOnTextChanged { charSequence: CharSequence?, i: Int, i1: Int, i2: Int ->
+            etUser.editText?.doOnTextChanged { _: CharSequence?, _: Int, _: Int, _: Int ->
                 mUserViewModel.username_.value = etUser.editText?.text.toString()
             }
-            etPassword.editText?.doOnTextChanged { charSequence: CharSequence?, i: Int, _: Int, i2: Int ->
+            etPassword.editText?.doOnTextChanged { _: CharSequence?, _: Int, _: Int, _: Int ->
                 mUserViewModel.passWord_.value = binding.etPassword.editText?.text.toString()
             }
-
-
         }
+    }
 
-
-        return view
-
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
 }

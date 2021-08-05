@@ -8,7 +8,8 @@ import com.example.voting.data.entities.Voters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class UserViewModel(application: Application, savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
+class UserViewModel(application: Application, savedStateHandle: SavedStateHandle) :
+    AndroidViewModel(application) {
 
 
     val username_: MutableLiveData<String> = savedStateHandle.getLiveData("username", "")
@@ -20,7 +21,7 @@ class UserViewModel(application: Application, savedStateHandle: SavedStateHandle
 
     init {
         val userDao = UserDatabase.getDatabase(
-                application
+            application
         ).userDao()
         repository = UserRepository(userDao)
         readAllData = repository.readAllData
@@ -32,21 +33,21 @@ class UserViewModel(application: Application, savedStateHandle: SavedStateHandle
         }
     }
 
-    fun addVoters(voters: Voters){
-        viewModelScope.launch(Dispatchers.IO){
+    fun addVoters(voters: Voters) {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.addVoter(voters)
         }
     }
 
-    fun updateVoter(voters: Voters){
+    fun updateVoter(voters: Voters) {
         viewModelScope.launch(Dispatchers.IO) {
             repository.updateVoter(voters)
         }
     }
 
 
-    fun getLoginDetails(context: Context, username: String, password: String) : LiveData<User>? {
-        liveDataLogin = repository.getLoginDetails(context, username,password)
+    fun getLoginDetails(context: Context, username: String, password: String): LiveData<User>? {
+        liveDataLogin = repository.getLoginDetails(context, username, password)
         return liveDataLogin
     }
 
